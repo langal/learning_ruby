@@ -1,7 +1,9 @@
 require 'ostruct'
+require 'yaml'
 
 class Utils
-    def self.make(hash)
+
+    def self.makeStruct(hash)
         #struct = OpenStruct.new(hash)
         object = OpenStruct.new()
         if (!hash.kind_of?(Hash))
@@ -9,13 +11,13 @@ class Utils
         end
         hash.keys.each do |key|
             #puts key + " " + hash[key].class().to_s()
-            if hash[key].respond_to?('keys')
-                object[key] = make(hash[key])
+            if hash[key].respond_to?(:keys)
+                object[key] = makeStruct(hash[key])
             elsif hash[key].kind_of?(Array)
                 subArray = Array.new()
                 hash[key].each do |subValue|
-                    if subValue.respond_to?('keys')
-                        subArray << make(subValue)
+                    if subValue.respond_to?(:keys)
+                        subArray << makeStruct(subValue)
                     else
                         subArray << subValue
                     end
@@ -27,4 +29,15 @@ class Utils
         end
         return object
     end
+
+    def self.log(msg,location='/tmp/ruby_log')
+        file = open(location,'a+')
+        if (msg.is_a?(String) || msg.is_a?(Fixnum) || msg.is_a?(Float) || msg.is_a?(FalseClass) || msg.is_a?(TrueClass))
+            file.puts msg
+        else
+            file.puts YAML::dump(msg)
+        end
+        file.close()
+    end
+
 end
